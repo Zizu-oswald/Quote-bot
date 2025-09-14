@@ -1,4 +1,4 @@
-module BOT
+module github.com/Zizu-oswald/Quote-bot
 
 go 1.24.4
 

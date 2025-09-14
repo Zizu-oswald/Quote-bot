@@ -1,12 +1,13 @@
 package main
 
 import (
-	"BOT/telegram"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/Zizu-oswald/Quote-bot/telegram"
 
 	"github.com/joho/godotenv"
 )
