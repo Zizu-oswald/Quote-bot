@@ -49,3 +49,10 @@ func (h *Handler) SendMessage(message string) error {
 	}
 	return nil
 }
+
+func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
+	if update.Message.Text == "/start" {
+		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello")
+		bot.Send(msg)
+	}
+}
