@@ -1,58 +1,42 @@
 package telegram
 
 import (
-	"errors"
+	// "errors"
+
+	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-type Handler struct {
-	bot    *tgbotapi.BotAPI
-	chatID int64
-}
-
-func NewHandler(botToken string) (*Handler, error) {
-	bot, err := tgbotapi.NewBotAPI(botToken)
-	if err != nil {
-		return nil, err
-	}
-
-	chatID, err := listen(bot)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Handler{bot: bot, chatID: chatID}, nil
-}
-
-func listen(bot *tgbotapi.BotAPI) (int64, error) {
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = 30
-
-	updates := bot.GetUpdatesChan(u)
-
-	for update := range updates {
-		if update.Message != nil {
-			chatID := update.Message.Chat.ID
-			return chatID, nil
+func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
+	if update.Message != nil {
+		if update.Message.Text == "/start" {
+			msg := newMessageWithButtons(update.Message.Chat.ID, "Change language:", "English", "Русский")
+			bot.Send(msg)
 		}
 	}
-	return 0, errors.New("cant listen chatID")
+	if update.CallbackQuery != nil {
+		handleCallback(bot, update.CallbackQuery)
+	}
+
 }
 
-func (h *Handler) SendMessage(message string) error {
-	msg := tgbotapi.NewMessage(h.chatID, message)
+func newMessageWithButtons(ID int64, messageText string, butt1text string, butt2text string) tgbotapi.MessageConfig {
+	msg := tgbotapi.NewMessage(ID, messageText)
+	msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData(butt1text, "en"),
+			tgbotapi.NewInlineKeyboardButtonData(butt2text, "ru"),
+		),
+	)
 
-	_, err := h.bot.Send(msg)
-	if err != nil {
-		return err
-	}
-	return nil
+	return msg
 }
 
-func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
-	if update.Message.Text == "/start" {
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Hello")
-		bot.Send(msg)
+func handleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) {
+	callback := tgbotapi.NewCallback(cq.ID, "Lang="+cq.Data)
+	if _, err := b.Request(callback); err != nil {
+		log.Println("Error: ", err)
 	}
+	b.Send(tgbotapi.NewMessage(cq.Message.Chat.ID, "Lang: "+cq.Data))
 }

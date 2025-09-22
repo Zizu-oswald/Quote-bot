@@ -23,11 +23,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// bot, err := telegram.NewHandler(os.Getenv("BOT_TOKEN"))
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	url := "https://zenquotes.io/api/random"
 	resp, err := http.Get(url)
 	if err != nil || resp.StatusCode != 200 {
@@ -51,5 +46,4 @@ func main() {
 		telegram.HandleUpdate(bot, update)
 	}
 
-	// select {}
 }
