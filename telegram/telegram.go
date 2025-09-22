@@ -14,16 +14,20 @@ type ChatStruct struct {
 }
 
 var Chat ChatStruct
+var deleteMessageID int
 
 func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	if update.Message != nil {
 		if update.Message.Text == "/start" {
 			Chat.ID = update.Message.Chat.ID
 			msg := newMessageWithButtons(Chat.ID, "Change language:", "English", "Русский")
-			bot.Send(msg)
+			delMsg, _ := bot.Send(msg)
+			deleteMessageID = delMsg.MessageID
 		}
 	}
 	if update.CallbackQuery != nil {
+		delMsg := tgbotapi.NewDeleteMessage(Chat.ID, deleteMessageID)
+		bot.Request(delMsg)
 		handleCallback(bot, update.CallbackQuery)
 	}
 

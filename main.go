@@ -19,6 +19,9 @@ func main() {
 	}
 
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
+	if err != nil {
+		log.Fatal("Failed to create a new bot")
+	}
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
