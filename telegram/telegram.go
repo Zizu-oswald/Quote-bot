@@ -11,7 +11,6 @@ import (
 type ChatStruct struct {
 	ID          int64
 	Lang        string
-	langChanged bool // изменить
 }
 
 var Chat ChatStruct
@@ -40,11 +39,6 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 			log.Println("Cant delete message ", err)
 		}
 		handleCallback(bot, update.CallbackQuery)
-		Chat.langChanged = true // обозначаем что язык был изменен
-	}
-//че за бретто
-	if Chat.langChanged { // если язык был изменен то изменяем кнопку
-		Chat.langChanged = false
 		log.Println(Chat.Lang)
 		var msg tgbotapi.MessageConfig
 		switch Chat.Lang {
@@ -58,7 +52,17 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 }
 
 func makeButton(str string) tgbotapi.MessageConfig {
-	msg := tgbotapi.NewMessage(Chat.ID, ".")
+	var msg tgbotapi.MessageConfig
+	switch Chat.Lang {
+	case "ru":
+		Chat.Lang = "ru"
+		msg = tgbotapi.NewMessage(Chat.ID, "Выбран язык: Русский")
+	case "en":
+		Chat.Lang = "en"
+		msg = tgbotapi.NewMessage(Chat.ID, "Language selected: English")
+	default:
+	}
+
 	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton(str),
@@ -88,10 +92,8 @@ func handleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) {
 	switch cq.Data {
 	case "ru":
 		Chat.Lang = "ru"
-		b.Send(tgbotapi.NewMessage(Chat.ID, "Выбран язык: Русский"))
 	case "en":
 		Chat.Lang = "en"
-		b.Send(tgbotapi.NewMessage(Chat.ID, "Language selected: English"))
 	default:
 	}
 }
