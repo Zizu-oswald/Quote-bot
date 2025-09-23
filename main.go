@@ -26,7 +26,7 @@ func main() {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
-	updates := bot.GetUpdatesChan(u)
+	updates := bot.GetUpdatesChan(u) // поток обновлений
 
 	for update := range updates {
 		telegram.HandleUpdate(bot, update)
