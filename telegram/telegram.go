@@ -1,8 +1,6 @@
 package telegram
 
 import (
-	// "errors"
-
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -31,13 +29,14 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 }
 
 func HandleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) {
-	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, DeleteMessageID) // запрос на удаление
+	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, DeleteMessageID) // запрос на удаление 
 	_, err := b.Request(delMsg)                                   // исполнение запроса на удаление
 	if err != nil {
 		log.Println("Cant delete message ", err)
 	}
+	// FIXME: удаление отдельно
 
-	changeLanguage(cq) // исполнение смены языка
+	Chat.changeLanguage(cq) // исполнение смены языка
 
 	var msg tgbotapi.MessageConfig
 	switch Chat.Lang {
@@ -84,14 +83,4 @@ func newMessageWithButtons(ID int64, messageText string, butt1text string, butt2
 	)
 
 	return msg
-}
-
-func changeLanguage(cq *tgbotapi.CallbackQuery) {
-	switch cq.Data {
-	case "ru":
-		Chat.Lang = "ru"
-	case "en":
-		Chat.Lang = "en"
-	default:
-	}
 }

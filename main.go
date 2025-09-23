@@ -2,8 +2,8 @@ package main
 
 import (
 	// "encoding/json"
-	"log"
 	// "net/http"
+	"log"
 	"os"
 
 	"github.com/Zizu-oswald/Quote-bot/telegram"
