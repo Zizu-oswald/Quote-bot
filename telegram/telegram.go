@@ -9,8 +9,8 @@ import (
 )
 
 type ChatStruct struct {
-	ID          int64
-	Lang        string
+	ID   int64
+	Lang string
 }
 
 var Chat ChatStruct
@@ -18,7 +18,8 @@ var deleteMessageID int // id сообщения которое будет уд�
 
 func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	if update.Message != nil {
-		if (update.Message.Text == "/start") || (update.Message.Text == "/changelang") {
+		switch update.Message.Text {
+		case "/start", "/changelang":
 			Chat.ID = update.Message.Chat.ID
 			msg := newMessageWithButtons(Chat.ID, "Change language:", "English", "Русский")
 			delMsg, err := bot.Send(msg)
@@ -26,20 +27,20 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 				log.Println("Cant send message with buttons ", err)
 			}
 			deleteMessageID = delMsg.MessageID
-		} else if (update.Message.Text == "Получить цитату") || (update.Message.Text == "Get quote") {
+		case "Получить цитату", "Get quote":
 			msg := tgbotapi.NewMessage(Chat.ID, update.Message.Text)
 			bot.Send(msg)
 		}
 	}
 
-	if update.CallbackQuery != nil {
+	if update.CallbackQuery != nil { // нажата кнопка в сообщении
 		delMsg := tgbotapi.NewDeleteMessage(Chat.ID, deleteMessageID) // запрос на удаление
 		_, err := bot.Request(delMsg)                                 // исполнение запроса на удаление
 		if err != nil {
 			log.Println("Cant delete message ", err)
 		}
-		handleCallback(bot, update.CallbackQuery)
-		log.Println(Chat.Lang)
+		handleCallback(bot, update.CallbackQuery) // исполнение смены языка
+
 		var msg tgbotapi.MessageConfig
 		switch Chat.Lang {
 		case "ru":
@@ -52,6 +53,16 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 }
 
 func makeButton(str string) tgbotapi.MessageConfig {
+	msg := makeLangMessage() //создание сообщения о смене языка
+	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
+		tgbotapi.NewKeyboardButtonRow(
+			tgbotapi.NewKeyboardButton(str),
+		),
+	)
+	return msg
+}
+
+func makeLangMessage() tgbotapi.MessageConfig {
 	var msg tgbotapi.MessageConfig
 	switch Chat.Lang {
 	case "ru":
@@ -62,12 +73,6 @@ func makeButton(str string) tgbotapi.MessageConfig {
 		msg = tgbotapi.NewMessage(Chat.ID, "Language selected: English")
 	default:
 	}
-
-	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
-		tgbotapi.NewKeyboardButtonRow(
-			tgbotapi.NewKeyboardButton(str),
-		),
-	)
 	return msg
 }
 
