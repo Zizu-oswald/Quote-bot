@@ -1,8 +1,6 @@
 package main
 
 import (
-	// "encoding/json"
-	// "net/http"
 	"log"
 	"os"
 
@@ -33,20 +31,3 @@ func main() {
 	}
 
 }
-
-// type Quote []struct {
-// 	Q string `json:"q"`
-// 	A string `json:"a"`
-// }
-
-// url := "https://zenquotes.io/api/random"
-// resp, err := http.Get(url)
-// if err != nil || resp.StatusCode != 200 {
-// 	log.Fatal("trash")
-// }
-
-// var quote Quote
-// err = json.NewDecoder(resp.Body).Decode(&quote)
-// if err != nil {
-// 	log.Fatal(err)
-// }

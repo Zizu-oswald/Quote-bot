@@ -2,6 +2,7 @@ package telegram
 
 import (
 	"log"
+	"github.com/Zizu-oswald/Quote-bot/zenquotesAPI"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -18,7 +19,13 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 			}
 			DeleteMessageID = delMsg.MessageID
 		case "Получить цитату", "Get quote":
-			msg := tgbotapi.NewMessage(Chat.ID, update.Message.Text)
+			quote, err := zenquotesapi.GetRandomQuote()
+			if err != nil {
+				log.Println(update.Message.From.FirstName, "Could not get a quote: ", err)
+			}
+			quoteStr := zenquotesapi.QuoteIntoString(&quote)
+			log.Println(update.Message.From.FirstName, "get a quote: ", quote)
+			msg := tgbotapi.NewMessage(Chat.ID, quoteStr)
 			bot.Send(msg)
 		}
 	}
