@@ -19,27 +19,42 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 			}
 			DeleteMessageID = delMsg.MessageID
 		case "Получить цитату", "Get quote":
-			quote, err := zenquotesapi.GetRandomQuote()
+			err := handleGetQuote(bot, update)
 			if err != nil {
-				log.Println(update.Message.From.FirstName, "Could not get a quote: ", err)
+				log.Println(err) // FIXME: исправить вывод ошибок
 			}
-			quoteStr := zenquotesapi.QuoteIntoString(&quote)
-			log.Println(update.Message.From.FirstName, "get a quote: ", quote)
-			msg := tgbotapi.NewMessage(Chat.ID, quoteStr)
-			bot.Send(msg)
 		}
 	}
-
+	
 	if update.CallbackQuery != nil { // нажата кнопка в сообщении
-		HandleCallback(bot, update.CallbackQuery)
+		err := HandleCallback(bot, update.CallbackQuery)
+		if err != nil {
+			log.Println(err) // FIXME: исправить вывод ошибок
+		}
 	}
 }
 
-func HandleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) {
+func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
+	quote, err := zenquotesapi.GetRandomQuote()
+	if err != nil {
+		log.Println(u.Message.From.FirstName, "Could not get a quote: ", err)
+	}
+	quoteStr := quote.QuoteIntoString()
+	log.Println(u.Message.From.FirstName, "get a quote: ", quote)
+	msg := tgbotapi.NewMessage(Chat.ID, quoteStr)
+	_, err = b.Send(msg)
+	if err != nil {
+	  return err
+	}
+	return nil
+}
+
+func HandleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
 	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, DeleteMessageID) // запрос на удаление 
 	_, err := b.Request(delMsg)                                   // исполнение запроса на удаление
 	if err != nil {
-		log.Println("Cant delete message ", err)
+		return err
+		// log.Println("Cant delete message ", err)
 	}
 	// FIXME: удаление отдельно
 
@@ -52,8 +67,11 @@ func HandleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) {
 	case "en":
 		msg = makeButton("Get quote")
 	}
-	b.Send(msg)
-
+	_, err = b.Send(msg)
+	if err != nil {
+	  return err
+	}
+	return nil
 }
 
 func makeButton(str string) tgbotapi.MessageConfig {

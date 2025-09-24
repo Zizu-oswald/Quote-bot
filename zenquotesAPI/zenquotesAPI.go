@@ -2,8 +2,8 @@ package zenquotesapi
 
 import (
 	"encoding/json"
-	"net/http"
 	"fmt"
+	"net/http"
 )
 
 type quoteJSON []struct {
@@ -14,6 +14,10 @@ type quoteJSON []struct {
 type Quote struct {
 	Quote  string
 	Author string
+}
+
+func (q *Quote) QuoteIntoString() string {
+	return fmt.Sprintf("Quote: %s\nAuthor: %s", q.Quote, q.Author)
 }
 
 func GetRandomQuote() (Quote, error) {
@@ -29,8 +33,4 @@ func GetRandomQuote() (Quote, error) {
 		return Quote{}, err
 	}
 	return Quote{Quote: quote[0].Q, Author: quote[0].A}, nil
-}
-
-func QuoteIntoString(q *Quote) string {
-	return fmt.Sprintf("Quote: %s\nAuthor: %s", q.Quote, q.Author)
 }
