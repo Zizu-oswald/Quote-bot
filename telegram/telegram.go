@@ -2,7 +2,8 @@ package telegram
 
 import (
 	"log"
-	"github.com/Zizu-oswald/Quote-bot/zenquotesAPI"
+
+	zenquotesapi "github.com/Zizu-oswald/Quote-bot/zenquotesAPI"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -12,12 +13,18 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		switch update.Message.Text {
 		case "/start", "/changelang":
 			Chat.ID = update.Message.Chat.ID
+
+			if LastMessageID != 0 { 
+				deleteMessage(bot) // удаляет сообщение при повторной попытке выбора языка
+			}
+
 			msg := newMessageWithButtons(Chat.ID, "Change language:", "English", "Русский")
 			delMsg, err := bot.Send(msg)
 			if err != nil {
 				log.Println("Cant send message with buttons ", err)
 			}
-			DeleteMessageID = delMsg.MessageID
+			LastMessageID = delMsg.MessageID
+
 		case "Получить цитату", "Get quote":
 			err := handleGetQuote(bot, update)
 			if err != nil {
@@ -25,9 +32,14 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 			}
 		}
 	}
-	
+
 	if update.CallbackQuery != nil { // нажата кнопка в сообщении
-		err := HandleCallback(bot, update.CallbackQuery)
+		err := deleteMessage(bot)
+		if err != nil {
+			log.Println(err) // FIXME: исправить вывод ошибок
+		}
+
+		err = handleCallback(bot, update.CallbackQuery)
 		if err != nil {
 			log.Println(err) // FIXME: исправить вывод ошибок
 		}
@@ -44,19 +56,21 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 	msg := tgbotapi.NewMessage(Chat.ID, quoteStr)
 	_, err = b.Send(msg)
 	if err != nil {
-	  return err
+		return err
 	}
 	return nil
 }
 
-func HandleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
-	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, DeleteMessageID) // запрос на удаление 
-	_, err := b.Request(delMsg)                                   // исполнение запроса на удаление
+func deleteMessage(b *tgbotapi.BotAPI) error {
+	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, LastMessageID) // запрос на удаление
+	_, err := b.Request(delMsg)                                 // исполнение запроса на удаление
 	if err != nil {
 		return err
-		// log.Println("Cant delete message ", err)
 	}
-	// FIXME: удаление отдельно
+	return nil
+}
+
+func handleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
 
 	Chat.changeLanguage(cq) // исполнение смены языка
 
@@ -67,9 +81,9 @@ func HandleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
 	case "en":
 		msg = makeButton("Get quote")
 	}
-	_, err = b.Send(msg)
+	_, err := b.Send(msg)
 	if err != nil {
-	  return err
+		return err
 	}
 	return nil
 }
