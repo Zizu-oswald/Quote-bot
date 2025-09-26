@@ -15,6 +15,22 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 		return fmt.Errorf("%s could not get a quote: %e", u.Message.From.FirstName, err)
 	}
 	log.Println(quote)
+
+	if quote == (zenquotesapi.Quote{}) {
+		var msg tgbotapi.MessageConfig
+		switch Chat.Lang{
+		case "ru":
+			msg = tgbotapi.NewMessage(Chat.ID, "Ищем цитаты, попробуйте позже.")
+		case "en":
+			msg = tgbotapi.NewMessage(Chat.ID, "We are looking for quotes, try later.")
+		}
+		_, err = b.Send(msg)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
 	if Chat.Lang == "ru" {
 		quote.Quote, err = mymemory.TranslEngToRus(quote.Quote)
 		if err != nil {
