@@ -21,4 +21,3 @@ func (ch *ChatStruct) changeLanguage(cq *tgbotapi.CallbackQuery) {
 }
 
 var Chat ChatStruct
-var LastMessageID int // id сообщения которое будет удалено

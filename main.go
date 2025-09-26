@@ -26,8 +26,9 @@ func main() {
 
 	updates := bot.GetUpdatesChan(u) // поток обновлений
 
+	var LastMessageID int
 	for update := range updates {
-		telegram.HandleUpdate(bot, update)
+		telegram.HandleUpdate(bot, update, &LastMessageID)
 	}
 
 }

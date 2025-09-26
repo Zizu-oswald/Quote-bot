@@ -16,8 +16,16 @@ type Quote struct {
 	Author string
 }
 
-func (q *Quote) IntoString() string {
-	return fmt.Sprintf("Quote: %s\nAuthor: %s", q.Quote, q.Author)
+func (q *Quote) IntoString(lang string) string {
+	switch lang {
+	case "en":
+		return fmt.Sprintf("Quote: %s\nAuthor: %s", q.Quote, q.Author)
+	case "ru":
+		// runes := []rune(q.Author)
+		// q.Author = string(runes[1:])
+		return fmt.Sprintf("Цитата: %s\nАвтор: %s", q.Quote, q.Author)
+	}
+	return ""
 }
 
 func GetRandomQuote() (Quote, error) {

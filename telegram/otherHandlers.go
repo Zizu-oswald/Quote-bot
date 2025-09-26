@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Zizu-oswald/Quote-bot/mymemory"
 	zenquotesapi "github.com/Zizu-oswald/Quote-bot/zenquotesAPI"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -13,8 +14,27 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 	if err != nil {
 		return fmt.Errorf("%s could not get a quote: %e", u.Message.From.FirstName, err)
 	}
-	quoteStr := quote.IntoString()
+	log.Println(quote)
+	if Chat.Lang == "ru" {
+		quote.Quote, err = mymemory.TranslEngToRus(quote.Quote)
+		if err != nil {
+			log.Println(err)
+		}
+		quote.Author, err = mymemory.TranslEngToRus(quote.Author)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	var quoteStr string
+	switch Chat.Lang {
+	case "ru":
+		quoteStr = quote.IntoString("ru")
+	case "en":
+		quoteStr = quote.IntoString("en")
+	}
 	log.Println(u.Message.From.FirstName, "get a quote: ", quote)
+
 	msg := tgbotapi.NewMessage(Chat.ID, quoteStr)
 	_, err = b.Send(msg)
 	if err != nil {

@@ -5,7 +5,7 @@ import (
 )
 
 
-func deleteMessage(b *tgbotapi.BotAPI) error { //FIXME: изменить с глобальной переменной
+func deleteMessage(b *tgbotapi.BotAPI, LastMessageID int) error { //FIXME: изменить с глобальной переменной
 	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, LastMessageID) // запрос на удаление
 	_, err := b.Request(delMsg)                                 // исполнение запроса на удаление
 	if err != nil {
