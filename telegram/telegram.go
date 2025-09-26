@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"fmt"
 	"log"
 
 	zenquotesapi "github.com/Zizu-oswald/Quote-bot/zenquotesAPI"
@@ -15,7 +16,10 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 			Chat.ID = update.Message.Chat.ID
 
 			if LastMessageID != 0 { 
-				deleteMessage(bot) // удаляет сообщение при повторной попытке выбора языка
+				err := deleteMessage(bot) // удаляет сообщение при повторной попытке выбора языка 
+				if err != nil {
+				  log.Println(err)
+				}
 			}
 
 			msg := newMessageWithButtons(Chat.ID, "Change language:", "English", "Русский")
@@ -28,7 +32,7 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 		case "Получить цитату", "Get quote":
 			err := handleGetQuote(bot, update)
 			if err != nil {
-				log.Println(err) // FIXME: исправить вывод ошибок
+				log.Println(err) 
 			}
 		}
 	}
@@ -36,12 +40,12 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 	if update.CallbackQuery != nil { // нажата кнопка в сообщении
 		err := deleteMessage(bot)
 		if err != nil {
-			log.Println(err) // FIXME: исправить вывод ошибок
+			log.Println(err) 
 		}
 
 		err = handleCallback(bot, update.CallbackQuery)
 		if err != nil {
-			log.Println(err) // FIXME: исправить вывод ошибок
+			log.Println(err) 
 		}
 	}
 }
@@ -49,9 +53,9 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update) {
 func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 	quote, err := zenquotesapi.GetRandomQuote()
 	if err != nil {
-		log.Println(u.Message.From.FirstName, "Could not get a quote: ", err)
+		return fmt.Errorf("%s could not get a quote: %e", u.Message.From.FirstName, err)
 	}
-	quoteStr := quote.QuoteIntoString()
+	quoteStr := quote.IntoString()
 	log.Println(u.Message.From.FirstName, "get a quote: ", quote)
 	msg := tgbotapi.NewMessage(Chat.ID, quoteStr)
 	_, err = b.Send(msg)
@@ -61,7 +65,7 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 	return nil
 }
 
-func deleteMessage(b *tgbotapi.BotAPI) error {
+func deleteMessage(b *tgbotapi.BotAPI) error { //FIXME: изменить с глобальной переменной
 	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, LastMessageID) // запрос на удаление
 	_, err := b.Request(delMsg)                                 // исполнение запроса на удаление
 	if err != nil {
@@ -71,7 +75,6 @@ func deleteMessage(b *tgbotapi.BotAPI) error {
 }
 
 func handleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
-
 	Chat.changeLanguage(cq) // исполнение смены языка
 
 	var msg tgbotapi.MessageConfig

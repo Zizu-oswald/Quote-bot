@@ -16,7 +16,7 @@ type Quote struct {
 	Author string
 }
 
-func (q *Quote) QuoteIntoString() string {
+func (q *Quote) IntoString() string {
 	return fmt.Sprintf("Quote: %s\nAuthor: %s", q.Quote, q.Author)
 }
 
