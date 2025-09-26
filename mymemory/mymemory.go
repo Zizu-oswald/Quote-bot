@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
+	"net/url"
 )
 
 type mymemResp struct {
@@ -15,9 +15,9 @@ type mymemResp struct {
 }
 
 func TranslEngToRus(str string) (string, error){
-	str = strings.ReplaceAll(str, " ", "%20")
-	url := "https://api.mymemory.translated.net/get?q=%s&langpair=en|ru"
-	resp, err := http.Get(fmt.Sprintf(url, str))
+	str = url.PathEscape(str) // для замены символов в запросе [" " -> %20]
+	urlReq := "https://api.mymemory.translated.net/get?q=%s&langpair=en|ru"
+	resp, err := http.Get(fmt.Sprintf(urlReq, str))
 	if err != nil {
 	  return "", fmt.Errorf("error with mymemory translation [en -> ru]: %e", err)
 	}
