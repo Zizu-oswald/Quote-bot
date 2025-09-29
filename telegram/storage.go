@@ -8,6 +8,7 @@ import (
 type ChatStruct struct {
 	ID   int64
 	Lang string
+	LastMessageID int
 }
 
 func (ch *ChatStruct) changeLanguage(cq *tgbotapi.CallbackQuery) {

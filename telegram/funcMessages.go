@@ -5,7 +5,7 @@ import (
 )
 
 
-func deleteMessage(b *tgbotapi.BotAPI, LastMessageID int) error { //FIXME: изменить с глобальной переменной
+func deleteMessage(b *tgbotapi.BotAPI, LastMessageID int) error {
 	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, LastMessageID) // запрос на удаление
 	_, err := b.Request(delMsg)                                 // исполнение запроса на удаление
 	if err != nil {
@@ -13,8 +13,6 @@ func deleteMessage(b *tgbotapi.BotAPI, LastMessageID int) error { //FIXME: из�
 	}
 	return nil
 }
-
-
 
 func makeButton(str string) tgbotapi.MessageConfig {
 	msg := makeLanguageMsg() //создание сообщения о смене языка
@@ -50,4 +48,16 @@ func newMessageWithButtons(ID int64, messageText string, butt1text string, butt2
 	)
 
 	return msg
+}
+
+func messageFindingQuotes(b *tgbotapi.BotAPI) error {
+	var msg tgbotapi.MessageConfig
+	switch Chat.Lang {
+	case "ru":
+		msg = tgbotapi.NewMessage(Chat.ID, "Ищем цитаты, попробуйте позже.")
+	case "en":
+		msg = tgbotapi.NewMessage(Chat.ID, "We are looking for quotes, try later.")
+	}
+	_, err := b.Send(msg)
+	return err
 }

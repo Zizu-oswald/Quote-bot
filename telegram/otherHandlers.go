@@ -17,14 +17,7 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 	log.Println(quote)
 
 	if quote == (zenquotesapi.Quote{}) {
-		var msg tgbotapi.MessageConfig
-		switch Chat.Lang{
-		case "ru":
-			msg = tgbotapi.NewMessage(Chat.ID, "Ищем цитаты, попробуйте позже.")
-		case "en":
-			msg = tgbotapi.NewMessage(Chat.ID, "We are looking for quotes, try later.")
-		}
-		_, err = b.Send(msg)
+		err = messageFindingQuotes(b) // сообщение заглушка когда кончились цитаты
 		if err != nil {
 			return err
 		}
@@ -45,9 +38,9 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 	var quoteStr string
 	switch Chat.Lang {
 	case "ru":
-		quoteStr = quote.IntoString("ru")
+		quoteStr = quote.IntoStringForMessage("ru")
 	case "en":
-		quoteStr = quote.IntoString("en")
+		quoteStr = quote.IntoStringForMessage("en")
 	}
 	log.Println(u.Message.From.FirstName, "get a quote: ", quote)
 
