@@ -24,7 +24,7 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 		return nil
 	}
 
-	if Chat.Lang == "ru" {
+	if Chat.Lang == "ru" { // перевод цитаты и имени 
 		quote.Quote, err = mymemory.TranslEngToRus(quote.Quote)
 		if err != nil {
 			log.Println(err)
@@ -35,13 +35,7 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 		}
 	}
 
-	var quoteStr string
-	switch Chat.Lang {
-	case "ru":
-		quoteStr = quote.IntoStringForMessage("ru")
-	case "en":
-		quoteStr = quote.IntoStringForMessage("en")
-	}
+	quoteStr := quote.IntoStringForMessage(Chat.Lang)
 	log.Println(u.Message.From.FirstName, "get a quote: ", quote)
 
 	msg := tgbotapi.NewMessage(Chat.ID, quoteStr)
@@ -55,13 +49,7 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 func handleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
 	Chat.changeLanguage(cq) // исполнение смены языка
 
-	var msg tgbotapi.MessageConfig
-	switch Chat.Lang {
-	case "ru":
-		msg = makeButton("Получить цитату")
-	case "en":
-		msg = makeButton("Get quote")
-	}
+	msg := makeButton(GetLocale(Chat.Lang).ButtonGetQuote)
 	_, err := b.Send(msg)
 	if err != nil {
 		return err

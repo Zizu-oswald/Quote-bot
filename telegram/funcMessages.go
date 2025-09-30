@@ -25,16 +25,7 @@ func makeButton(str string) tgbotapi.MessageConfig {
 }
 
 func makeLanguageMsg() tgbotapi.MessageConfig {
-	var msg tgbotapi.MessageConfig
-	switch Chat.Lang {
-	case "ru":
-		Chat.Lang = "ru"
-		msg = tgbotapi.NewMessage(Chat.ID, "Выбран язык: Русский")
-	case "en":
-		Chat.Lang = "en"
-		msg = tgbotapi.NewMessage(Chat.ID, "Language selected: English")
-	default:
-	}
+	msg := tgbotapi.NewMessage(Chat.ID, GetLocale(Chat.Lang).LanguageMsg)
 	return msg
 }
 
@@ -51,13 +42,7 @@ func newMessageWithButtons(ID int64, messageText string, butt1text string, butt2
 }
 
 func messageFindingQuotes(b *tgbotapi.BotAPI) error {
-	var msg tgbotapi.MessageConfig
-	switch Chat.Lang {
-	case "ru":
-		msg = tgbotapi.NewMessage(Chat.ID, "Ищем цитаты, попробуйте позже.")
-	case "en":
-		msg = tgbotapi.NewMessage(Chat.ID, "We are looking for quotes, try later.")
-	}
+	msg := tgbotapi.NewMessage(Chat.ID, GetLocale(Chat.Lang).FindingQuotes)
 	_, err := b.Send(msg)
 	return err
 }

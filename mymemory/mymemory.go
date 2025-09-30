@@ -15,8 +15,14 @@ type mymemResp struct {
 }
 
 func TranslEngToRus(str string) (string, error){
+	str = "get?q=" + str + "&langpair=en|ru"
 	str = url.PathEscape(str) // для замены символов в запросе [" " -> %20]
-	urlReq := "https://api.mymemory.translated.net/get?q=%s&langpair=en|ru"
+
+	// urlReq := "https://api.mymemory.translated.net/get?q=%s&langpair=en|ru"
+	// urlReq := "https://api.mymemory.translated.net/get?q=%s&langpair=en%7Cru"
+	urlReq := "https://api.mymemory.translated.net/%s"
+
+
 	resp, err := http.Get(fmt.Sprintf(urlReq, str))
 	if err != nil {
 	  return "", fmt.Errorf("error with mymemory translation [en -> ru]: %e", err)
