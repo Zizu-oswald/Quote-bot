@@ -15,17 +15,12 @@ func deleteMessage(b *tgbotapi.BotAPI, LastMessageID int) error {
 }
 
 func makeButton(str string) tgbotapi.MessageConfig {
-	msg := makeLanguageMsg() //создание сообщения о смене языка
+	msg := tgbotapi.NewMessage(Chat.ID, GetLocale(Chat.Lang).LanguageMsg) // создание сообщения о смене языка
 	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(
 			tgbotapi.NewKeyboardButton(str),
 		),
 	)
-	return msg
-}
-
-func makeLanguageMsg() tgbotapi.MessageConfig {
-	msg := tgbotapi.NewMessage(Chat.ID, GetLocale(Chat.Lang).LanguageMsg)
 	return msg
 }
 
@@ -39,10 +34,4 @@ func newMessageWithButtons(ID int64, messageText string, butt1text string, butt2
 	)
 
 	return msg
-}
-
-func messageFindingQuotes(b *tgbotapi.BotAPI) error {
-	msg := tgbotapi.NewMessage(Chat.ID, GetLocale(Chat.Lang).FindingQuotes)
-	_, err := b.Send(msg)
-	return err
 }

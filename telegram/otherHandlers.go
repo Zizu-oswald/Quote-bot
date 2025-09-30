@@ -17,14 +17,15 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 	log.Println(quote)
 
 	if quote == (zenquotesapi.Quote{}) {
-		err = messageFindingQuotes(b) // сообщение заглушка когда кончились цитаты
+		msg := tgbotapi.NewMessage(Chat.ID, GetLocale(Chat.Lang).FindingQuotes) // сообщение заглушка когда кончились цитаты
+		_, err := b.Send(msg)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
 
-	if Chat.Lang == "ru" { // перевод цитаты и имени 
+	if Chat.Lang == "ru" { // перевод цитаты и имени
 		quote.Quote, err = mymemory.TranslEngToRus(quote.Quote)
 		if err != nil {
 			log.Println(err)
