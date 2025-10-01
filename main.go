@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/Zizu-oswald/Quote-bot/postgres"
 	"github.com/Zizu-oswald/Quote-bot/telegram"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
@@ -25,8 +26,13 @@ func main() {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u) // поток обновлений
+	db, err := postgres.ConnectToSql()
+	if err != nil {
+		log.Println(err)
+	}
 
-	// var LastMessageID int
+	postgres.AddUser(db, telegram.ChatStruct{ID: 3, Lang: "en", LastMessageID: 678})
+
 	for update := range updates {
 		telegram.HandleUpdate(bot, update)
 	}
