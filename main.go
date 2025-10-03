@@ -16,7 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+// telegeram
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
 	if err != nil {
 		log.Fatal("Failed to create a new bot")
@@ -26,12 +26,16 @@ func main() {
 	u.Timeout = 60
 
 	updates := bot.GetUpdatesChan(u) // поток обновлений
-	db, err := postgres.ConnectToSql()
+
+// postgres
+	var db postgres.Database
+	err = db.ConnectToSql()
 	if err != nil {
 		log.Println(err)
 	}
+	defer db.Close()
 
-	postgres.AddUser(db, telegram.ChatStruct{ID: 3, Lang: "en", LastMessageID: 678})
+	db.AddUser(telegram.ChatStruct{ID: 4, Lang: "en", LastMessageID: 2222})
 
 	for update := range updates {
 		telegram.HandleUpdate(bot, update)
