@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -36,7 +37,12 @@ func main() {
 	defer db.Close()
 
 	db.AddUser(telegram.ChatStruct{ID: 4, Lang: "en", LastMessageID: 2222})
-
+	usr, err := db.TakeUser(4)
+	if err != nil {
+	  log.Println(err)
+	}
+	fmt.Println(usr)
+	
 	for update := range updates {
 		telegram.HandleUpdate(bot, update)
 	}

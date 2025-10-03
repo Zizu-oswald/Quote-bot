@@ -34,11 +34,23 @@ func (d *Database) AddUser(u telegram.ChatStruct) error {
 	return err
 }
 
-func (d Database) Close(){
+func (d *Database) Close(){
 	err := d.Db.Close()
 	if err != nil {
 		log.Println("error with closing database: ", err)
 	}
+}
+
+func (d *Database) TakeUser(id int) (telegram.ChatStruct, error) {
+	result:= d.Db.QueryRow("select * from users where chatid = $1;", id)
+
+	var chat telegram.ChatStruct
+	err := result.Scan(&chat.ID, &chat.Lang, &chat.LastMessageID)
+
+	if err != nil {
+	  return telegram.ChatStruct{}, err
+	}
+	return chat, nil
 }
 
 
