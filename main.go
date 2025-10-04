@@ -5,12 +5,15 @@ import (
 	"log"
 	"os"
 
-	"github.com/Zizu-oswald/Quote-bot/postgres"
+	// "github.com/Zizu-oswald/Quote-bot/postgres"
 	"github.com/Zizu-oswald/Quote-bot/telegram"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/joho/godotenv"
 )
+
+	var db telegram.Database
+
 
 func main() {
 	err := godotenv.Load("keys.env")
@@ -29,7 +32,7 @@ func main() {
 	updates := bot.GetUpdatesChan(u) // поток обновлений
 
 // postgres
-	var db postgres.Database
+	// var db telegram.Database
 	err = db.ConnectToSql()
 	if err != nil {
 		log.Println(err)

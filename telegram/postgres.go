@@ -1,11 +1,9 @@
-package postgres
+package telegram
 
 import (
 	"database/sql"
 	"log"
 	// "fmt"
-
-	"github.com/Zizu-oswald/Quote-bot/telegram"
 
 	_ "github.com/lib/pq"
 )
@@ -18,7 +16,6 @@ type Database struct {
 
 func (d *Database) ConnectToSql() (error) {
 	connStr := "user=myuser password=mysecretpassword dbname=mydatabase sslmode=disable"
-	// var db Database 
 	var err error
 	db, err := sql.Open("postgres", connStr)
 	d.Db = db
@@ -29,7 +26,7 @@ func (d *Database) ConnectToSql() (error) {
 
 }
 
-func (d *Database) AddUser(u telegram.ChatStruct) error {
+func (d *Database) AddUser(u ChatStruct) error {
 	_, err := d.Db.Exec("insert into users (chatid, lang, lastmessageid) values ($1, $2, $3);", u.ID, u.Lang, u.LastMessageID)
 	return err
 }
@@ -41,14 +38,14 @@ func (d *Database) Close(){
 	}
 }
 
-func (d *Database) TakeUser(id int) (telegram.ChatStruct, error) {
+func (d *Database) TakeUser(id int) (ChatStruct, error) {
 	result:= d.Db.QueryRow("select * from users where chatid = $1;", id)
 
-	var chat telegram.ChatStruct
+	var chat ChatStruct
 	err := result.Scan(&chat.ID, &chat.Lang, &chat.LastMessageID)
 
 	if err != nil {
-	  return telegram.ChatStruct{}, err
+	  return ChatStruct{}, err
 	}
 	return chat, nil
 }
