@@ -1,19 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
-	// "github.com/Zizu-oswald/Quote-bot/postgres"
 	"github.com/Zizu-oswald/Quote-bot/telegram"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"github.com/joho/godotenv"
 )
-
-	var db telegram.Database
-
 
 func main() {
 	err := godotenv.Load("keys.env")
@@ -32,22 +27,15 @@ func main() {
 	updates := bot.GetUpdatesChan(u) // поток обновлений
 
 // postgres
-	// var db telegram.Database
+	var db telegram.Database
 	err = db.ConnectToSql()
 	if err != nil {
 		log.Println(err)
 	}
 	defer db.Close()
-
-	db.AddUser(telegram.ChatStruct{ID: 4, Lang: "en", LastMessageID: 2222})
-	usr, err := db.TakeUser(4)
-	if err != nil {
-	  log.Println(err)
-	}
-	fmt.Println(usr)
 	
 	for update := range updates {
-		telegram.HandleUpdate(bot, update)
+		telegram.HandleUpdate(bot, update, &db)
 	}
 
 }

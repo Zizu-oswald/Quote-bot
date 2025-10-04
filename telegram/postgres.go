@@ -38,7 +38,7 @@ func (d *Database) Close(){
 	}
 }
 
-func (d *Database) TakeUser(id int) (ChatStruct, error) {
+func (d *Database) TakeUser(id int64) (ChatStruct, error) {
 	result:= d.Db.QueryRow("select * from users where chatid = $1;", id)
 
 	var chat ChatStruct
@@ -50,24 +50,4 @@ func (d *Database) TakeUser(id int) (ChatStruct, error) {
 	return chat, nil
 }
 
-
-
-// result, err := db.Query("select * from users;")
-// if err != nil {
-// 	return nil, err
-// }
-
-// var mass []telegram.ChatStruct
-
-// for result.Next() {
-// 	c := telegram.ChatStruct{}
-// 	err := result.Scan(&c.ID, &c.Lang, &c.LastMessageID)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 		continue
-// 	}
-// 	mass = append(mass, c)
-// }
-
-// fmt.Println(mass)
-// return db, nil
+// TODO: сделать func обновление бд
