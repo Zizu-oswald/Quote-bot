@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
@@ -56,4 +57,22 @@ func handleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
 		return err
 	}
 	return nil
+}
+
+func handleGettingUser(db *Database, id int64) {
+	var err error
+	Chat, err = db.GetUser(id)
+	if err == sql.ErrNoRows {
+		err := db.AddUser(ChatStruct{ID: id, Lang: "en", LastMessageID: 0})
+		if err != nil {
+			log.Println("Problem to adding user to db: ", err)
+		}
+		Chat, err = db.GetUser(id)
+		if err != nil {
+			log.Println("Problem to taking user from db: ", err)
+		}
+	}
+	if err != nil {
+		log.Println("Problem to taking user from db: ", err)
+	}
 }

@@ -58,5 +58,3 @@ func (d *Database) UpdateUserData(u ChatStruct) error {
 	}
 	return nil
 }
-
-// TODO: сделать func обновление бд

@@ -35,7 +35,7 @@ func main() {
 	defer db.Close()
 	
 	for update := range updates {
-		telegram.HandleUpdate(bot, update, &db)
+		go telegram.HandleUpdate(bot, update, &db)
 	}
 
 }

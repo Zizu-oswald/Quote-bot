@@ -1,7 +1,6 @@
 package telegram
 
 import (
-	"database/sql"
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -12,21 +11,7 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 		switch update.Message.Text {
 		case "/start", "/changelang":
 			// обработка в бд
-			var err error
-			Chat, err = db.GetUser(update.Message.Chat.ID)
-			if err == sql.ErrNoRows {
-				err := db.AddUser(ChatStruct{ID: update.Message.Chat.ID, Lang: "en", LastMessageID: 0})
-				if err != nil {
-					log.Println("Problem to adding user to db: ", err)
-				}
-				Chat, err = db.GetUser(update.Message.Chat.ID)
-				if err != nil {
-					log.Println("Problem to taking user from db: ", err)
-				}
-			}
-			if err != nil {
-				log.Println("Problem to taking user from db: ", err)
-			}
+			handleGettingUser(db, update.Message.Chat.ID)
 
 			if Chat.LastMessageID != 0 {
 				err := deleteMessage(bot, Chat.LastMessageID) // удаляет сообщение при повторной попытке выбора языка
@@ -47,6 +32,8 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 			}
 
 		case "Получить цитату", "Get quote":
+			handleGettingUser(db, update.Message.Chat.ID)
+
 			err := handleGetQuote(bot, update)
 			if err != nil {
 				log.Println(Chat.ID, err)
