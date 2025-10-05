@@ -13,13 +13,13 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 		case "/start", "/changelang":
 			// обработка в бд
 			var err error
-			Chat, err = db.TakeUser(update.Message.Chat.ID)
+			Chat, err = db.GetUser(update.Message.Chat.ID)
 			if err == sql.ErrNoRows {
 				err := db.AddUser(ChatStruct{ID: update.Message.Chat.ID, Lang: "en", LastMessageID: 0})
 				if err != nil {
 					log.Println("Problem to adding user to db: ", err)
 				}
-				Chat, err = db.TakeUser(update.Message.Chat.ID)
+				Chat, err = db.GetUser(update.Message.Chat.ID)
 				if err != nil {
 					log.Println("Problem to taking user from db: ", err)
 				}
@@ -27,7 +27,7 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 			if err != nil {
 				log.Println("Problem to taking user from db: ", err)
 			}
-			
+
 			if Chat.LastMessageID != 0 {
 				err := deleteMessage(bot, Chat.LastMessageID) // удаляет сообщение при повторной попытке выбора языка
 				if err != nil {
@@ -41,6 +41,10 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 				log.Println("Cant send message with buttons ", err)
 			}
 			Chat.LastMessageID = delMsg.MessageID
+			err = db.UpdateUserData(Chat)
+			if err != nil {
+				log.Println("cant update db (lastmessageid): ", err)
+			}
 
 		case "Получить цитату", "Get quote":
 			err := handleGetQuote(bot, update)
@@ -59,6 +63,10 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 		err = handleCallback(bot, update.CallbackQuery)
 		if err != nil {
 			log.Println(err)
+		}
+		err = db.UpdateUserData(Chat)
+		if err != nil {
+			log.Println("cant update db (language): ", err)
 		}
 	}
 }

@@ -3,6 +3,7 @@ package telegram
 import (
 	"database/sql"
 	"log"
+
 	// "fmt"
 
 	_ "github.com/lib/pq"
@@ -14,7 +15,7 @@ type Database struct {
 	Db *sql.DB
 }
 
-func (d *Database) ConnectToSql() (error) {
+func (d *Database) ConnectToSql() error {
 	connStr := "user=myuser password=mysecretpassword dbname=mydatabase sslmode=disable"
 	var err error
 	db, err := sql.Open("postgres", connStr)
@@ -31,23 +32,31 @@ func (d *Database) AddUser(u ChatStruct) error {
 	return err
 }
 
-func (d *Database) Close(){
+func (d *Database) Close() {
 	err := d.Db.Close()
 	if err != nil {
 		log.Println("error with closing database: ", err)
 	}
 }
 
-func (d *Database) TakeUser(id int64) (ChatStruct, error) {
-	result:= d.Db.QueryRow("select * from users where chatid = $1;", id)
+func (d *Database) GetUser(id int64) (ChatStruct, error) {
+	result := d.Db.QueryRow("select * from users where chatid = $1;", id)
 
 	var chat ChatStruct
 	err := result.Scan(&chat.ID, &chat.Lang, &chat.LastMessageID)
 
 	if err != nil {
-	  return ChatStruct{}, err
+		return ChatStruct{}, err
 	}
 	return chat, nil
+}
+
+func (d *Database) UpdateUserData(u ChatStruct) error {
+	_, err := d.Db.Exec("update users set lang = $1, lastmessageid = $2 where chatid = $3;", u.Lang, u.LastMessageID, u.ID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // TODO: сделать func обновление бд
