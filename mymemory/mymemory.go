@@ -17,16 +17,15 @@ type mymemResp struct {
 func TranslEngToRus(str string) (string, error) {
 	base := "https://api.mymemory.translated.net/get"
 
-	params := url.Values{}          // для параметров запроса
-	params.Set("q", str)            // параметры запроса
-	params.Set("langpair", "en|ru") // -^
+	// для точечного порядка элементов тк в api mymemory это важно
+	query := "q=" + url.QueryEscape(str) + "&langpair=" + url.QueryEscape("en|ru")
+	fullURL := base + "?" + query
 
-	fullURL := base + "?" + params.Encode()
 
 	resp, err := http.Get(fullURL)
 
 	if err != nil {
-		return "", fmt.Errorf("error with mymemory translation [en -> ru]: %e", err)
+		return "", fmt.Errorf("error with mymemory translation [en -> ru]: %s %e", fullURL, err)
 	}
 	if resp.StatusCode != 200 {
 		return "", fmt.Errorf("mymemory translation [en -> ru] with status code: %d", resp.StatusCode)

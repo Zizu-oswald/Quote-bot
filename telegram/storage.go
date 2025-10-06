@@ -45,5 +45,3 @@ func GetLocale(lang string) Localizations {
 	}
 	return locales["en"]
 }
-
-// var Chat ChatStruct // FIXME:
