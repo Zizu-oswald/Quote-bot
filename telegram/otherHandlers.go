@@ -10,10 +10,10 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
+func handleGetQuote(Chat ChatStruct, b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 	quote, err := zenquotesapi.GetRandomQuote()
 	if err != nil {
-		return fmt.Errorf("%s could not get a quote: %e", u.Message.From.FirstName, err)
+		return fmt.Errorf("%s could not get a quote: %w", u.Message.From.FirstName, err)
 	}
 	log.Println(quote)
 
@@ -48,10 +48,10 @@ func handleGetQuote(b *tgbotapi.BotAPI, u tgbotapi.Update) error {
 	return nil
 }
 
-func handleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
+func handleCallback(Chat ChatStruct, b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
 	Chat.changeLanguage(cq) // исполнение смены языка
 
-	msg := makeButton(GetLocale(Chat.Lang).ButtonGetQuote)
+	msg := makeButton(Chat, GetLocale(Chat.Lang).ButtonGetQuote)
 	_, err := b.Send(msg)
 	if err != nil {
 		return err
@@ -59,20 +59,22 @@ func handleCallback(b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
 	return nil
 }
 
-func handleGettingUser(db *Database, id int64) {
+func handleGettingUser(db *Database, id int64) (ChatStruct, error) {
 	var err error
-	Chat, err = db.GetUser(id)
+	Chat, err := db.GetUser(id)
 	if err == sql.ErrNoRows {
 		err := db.AddUser(ChatStruct{ID: id, Lang: "en", LastMessageID: 0})
 		if err != nil {
-			log.Println("Problem to adding user to db: ", err)
+			return ChatStruct{}, fmt.Errorf("problem to adding user to db: %w", err)
 		}
 		Chat, err = db.GetUser(id)
 		if err != nil {
-			log.Println("Problem to taking user from db: ", err)
+			return ChatStruct{}, fmt.Errorf("problem to get user after adding: %w", err)
 		}
 	}
 	if err != nil {
-		log.Println("Problem to taking user from db: ", err)
+		return ChatStruct{}, fmt.Errorf("problem to get user after adding: %w", err)
 	}
+	return Chat, nil
 }
+

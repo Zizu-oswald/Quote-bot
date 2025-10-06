@@ -5,7 +5,7 @@ import (
 )
 
 
-func deleteMessage(b *tgbotapi.BotAPI, LastMessageID int) error {
+func deleteMessage(Chat ChatStruct, b *tgbotapi.BotAPI, LastMessageID int) error {
 	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, LastMessageID) // запрос на удаление
 	_, err := b.Request(delMsg)                                 // исполнение запроса на удаление
 	if err != nil {
@@ -14,7 +14,7 @@ func deleteMessage(b *tgbotapi.BotAPI, LastMessageID int) error {
 	return nil
 }
 
-func makeButton(str string) tgbotapi.MessageConfig {
+func makeButton(Chat ChatStruct, str string) tgbotapi.MessageConfig {
 	msg := tgbotapi.NewMessage(Chat.ID, GetLocale(Chat.Lang).LanguageMsg) // создание сообщения о смене языка
 	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonRow(

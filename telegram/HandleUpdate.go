@@ -7,14 +7,19 @@ import (
 )
 
 func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
+	// var Chat ChatStruct
 	if update.Message != nil { // отпралено сообщение
+		Chat, err := handleGettingUser(db, update.Message.Chat.ID)
+		if err != nil {
+			log.Println("Problem with getting user from message update: ", err)
+		}
 		switch update.Message.Text {
 		case "/start", "/changelang":
 			// обработка в бд
-			handleGettingUser(db, update.Message.Chat.ID)
+			// handleGettingUser(db, update.Message.Chat.ID)
 
 			if Chat.LastMessageID != 0 {
-				err := deleteMessage(bot, Chat.LastMessageID) // удаляет сообщение при повторной попытке выбора языка
+				err := deleteMessage(Chat, bot, Chat.LastMessageID) // удаляет сообщение при повторной попытке выбора языка
 				if err != nil {
 					log.Println(err)
 				}
@@ -32,9 +37,9 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 			}
 
 		case "Получить цитату", "Get quote":
-			handleGettingUser(db, update.Message.Chat.ID)
+			// handleGettingUser(db, update.Message.Chat.ID)
 
-			err := handleGetQuote(bot, update)
+			err := handleGetQuote(Chat, bot, update)
 			if err != nil {
 				log.Println(Chat.ID, err)
 			}
@@ -42,12 +47,16 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 	}
 
 	if update.CallbackQuery != nil { // нажата кнопка в сообщении
-		err := deleteMessage(bot, Chat.LastMessageID)
+		Chat, err := handleGettingUser(db, update.Message.Chat.ID)
+		if err != nil {
+			log.Println("Problem with getting user from callback: ", err)
+		}
+		err = deleteMessage(Chat, bot, Chat.LastMessageID)
 		if err != nil {
 			log.Println(err)
 		}
 
-		err = handleCallback(bot, update.CallbackQuery)
+		err = handleCallback(Chat, bot, update.CallbackQuery)
 		if err != nil {
 			log.Println(err)
 		}
