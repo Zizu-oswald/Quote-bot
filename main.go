@@ -18,7 +18,7 @@ func main() {
 // telegeram
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
 	if err != nil {
-		log.Fatal("Failed to create a new bot")
+		log.Fatalln("Failed to create a new bot: ", err)
 	}
 
 	u := tgbotapi.NewUpdate(0)
