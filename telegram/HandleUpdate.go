@@ -43,7 +43,7 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 	}
 
 	if update.CallbackQuery != nil { // нажата кнопка в сообщении
-		Chat, err := handleGettingUser(db, update.CallbackQuery.Message.Chat.ID)
+		Chat, err := handleGettingUser(db, update.CallbackQuery.Message.Chat.ChatConfig().ChatID)
 		if err != nil {
 			log.Println("Problem with getting user from callback: ", err)
 		}
@@ -52,7 +52,7 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 			log.Println(err)
 		}
 
-		err = handleCallback(Chat, bot, update.CallbackQuery)
+		err = handleCallback(&Chat, bot, update.CallbackQuery)
 		if err != nil {
 			log.Println(err)
 		}

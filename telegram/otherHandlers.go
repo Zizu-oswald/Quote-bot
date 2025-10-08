@@ -48,10 +48,10 @@ func handleGetQuote(Chat ChatStruct, b *tgbotapi.BotAPI, u tgbotapi.Update) erro
 	return nil
 }
 
-func handleCallback(Chat ChatStruct, b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
+func handleCallback(Chat *ChatStruct, b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {
 	Chat.changeLanguage(cq) // исполнение смены языка
 
-	msg := makeButton(Chat, GetLocale(Chat.Lang).ButtonGetQuote)
+	msg := makeButton(*Chat, GetLocale(Chat.Lang).ButtonGetQuote)
 	_, err := b.Send(msg)
 	if err != nil {
 		return err
