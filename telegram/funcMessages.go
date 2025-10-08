@@ -5,8 +5,8 @@ import (
 )
 
 
-func deleteMessage(Chat ChatStruct, b *tgbotapi.BotAPI, LastMessageID int) error {
-	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, LastMessageID) // запрос на удаление
+func deleteMessage(Chat ChatStruct, b *tgbotapi.BotAPI) error {
+	delMsg := tgbotapi.NewDeleteMessage(Chat.ID, Chat.LastMessageID) // запрос на удаление
 	_, err := b.Request(delMsg)                                 // исполнение запроса на удаление
 	if err != nil {
 		return err
