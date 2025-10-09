@@ -24,6 +24,7 @@ type Localizations struct {
 	ButtonGetQuote string
 	LanguageMsg    string
 	FindingQuotes  string
+	LoadingQuote   string
 }
 
 var locales = map[string]Localizations{
@@ -31,11 +32,13 @@ var locales = map[string]Localizations{
 		ButtonGetQuote: "Получить цитату",
 		LanguageMsg:    "Выбран язык: Русский",
 		FindingQuotes:  "Ищем цитаты, попробуйте позже.",
+		LoadingQuote:   "Загрузка цитаты...",
 	},
 	"en": {
 		ButtonGetQuote: "Get quote",
 		LanguageMsg:    "Language selected: English",
 		FindingQuotes:  "We are looking for quotes, try later.",
+		LoadingQuote:   "Loading quote...",
 	},
 }
 

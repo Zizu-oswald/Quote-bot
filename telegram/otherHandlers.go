@@ -10,20 +10,20 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func handleGetQuote(Chat ChatStruct, b *tgbotapi.BotAPI, u tgbotapi.Update) error {
+func handleGetQuote(Chat ChatStruct, b *tgbotapi.BotAPI, u tgbotapi.Update) (tgbotapi.MessageConfig, error) {
 	quote, err := zenquotesapi.GetRandomQuote()
 	if err != nil {
-		return fmt.Errorf("%s could not get a quote: %w", u.Message.From.FirstName, err)
+		return tgbotapi.MessageConfig{}, fmt.Errorf("%s could not get a quote: %w", u.Message.From.FirstName, err)
 	}
 	log.Println(quote)
 
 	if quote == (zenquotesapi.Quote{}) {
 		msg := tgbotapi.NewMessage(Chat.ID, GetLocale(Chat.Lang).FindingQuotes) // сообщение заглушка когда кончились цитаты
-		_, err := b.Send(msg)
-		if err != nil {
-			return err
-		}
-		return nil
+		// _, err := b.Send(msg)
+		// if err != nil {
+		// 	return tgbotapi.MessageConfig{}, err
+		// }
+		return msg, nil
 	}
 
 	if Chat.Lang == "ru" { // перевод цитаты и имени
@@ -41,11 +41,11 @@ func handleGetQuote(Chat ChatStruct, b *tgbotapi.BotAPI, u tgbotapi.Update) erro
 	log.Println(u.Message.From.FirstName, "get a quote: ", quote)
 
 	msg := tgbotapi.NewMessage(Chat.ID, quoteStr)
-	_, err = b.Send(msg)
-	if err != nil {
-		return err
-	}
-	return nil
+	// _, err = b.Send(msg)
+	// if err != nil {
+	// 	return err
+	// }
+	return msg, nil
 }
 
 func handleCallback(Chat *ChatStruct, b *tgbotapi.BotAPI, cq *tgbotapi.CallbackQuery) error {

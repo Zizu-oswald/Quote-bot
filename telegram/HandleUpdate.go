@@ -34,10 +34,25 @@ func HandleUpdate(bot *tgbotapi.BotAPI, update tgbotapi.Update, db *Database) {
 			}
 
 		case "Получить цитату", "Get quote":
+			msg := tgbotapi.NewMessage(Chat.ID, GetLocale(Chat.Lang).LoadingQuote)
+			delMsg, err := bot.Send(msg)
+			if err != nil {
+				log.Println("error in sending *loading quote...* message: ", err)
+			}
+			Chat.LastMessageID = delMsg.MessageID
 
-			err := handleGetQuote(Chat, bot, update)
+			msg, err = handleGetQuote(Chat, bot, update)
 			if err != nil {
 				log.Println(Chat.ID, err)
+			}
+			err = deleteMessage(Chat, bot)
+			if err != nil {
+				log.Println("error in deleting *loading quote...* message: ", err)
+			}
+
+			_, err = bot.Send(msg)
+			if err != nil {
+				log.Println("error in sending quote: ", err)
 			}
 		}
 	}
