@@ -2,7 +2,9 @@ package telegram
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"os"
 
 	// "fmt"
 
@@ -16,9 +18,10 @@ type Database struct {
 }
 
 func (d *Database) ConnectToSql() error {
-	connStr := "user=myuser password=mysecretpassword dbname=mydatabase sslmode=disable"
+	connectionStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
 	var err error
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("postgres", connectionStr)
 	d.Db = db
 	if err != nil {
 		return err
