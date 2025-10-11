@@ -18,7 +18,7 @@ type Database struct {
 }
 
 func (d *Database) ConnectToSql() error {
-	connectionStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
+	connectionStr := fmt.Sprintf("host=db user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
 	var err error
 	db, err := sql.Open("postgres", connectionStr)
@@ -28,6 +28,11 @@ func (d *Database) ConnectToSql() error {
 	}
 	return nil
 
+}
+
+func MakeTable(d *Database) error {
+	_, err := d.Db.Exec("create table if not exists users ( chatid bigint, lang text, lastmessageid integer );")
+	return err
 }
 
 func (d *Database) AddUser(u ChatStruct) error {

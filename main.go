@@ -11,11 +11,13 @@ import (
 )
 
 func main() {
+	// .env
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)
 	}
-// telegeram
+
+	// telegeram
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
 	if err != nil {
 		log.Fatalln("Failed to create a new bot: ", err)
@@ -26,14 +28,17 @@ func main() {
 
 	updates := bot.GetUpdatesChan(u) // поток обновлений
 
-// postgres
+	// postgres
 	var db telegram.Database
-	err = db.ConnectToSql()
-	if err != nil {
+	if err = db.ConnectToSql(); err != nil {
 		log.Println(err)
 	}
+	if err = telegram.MakeTable(&db); err != nil {
+		log.Println("cant make users table: ", err)
+	}
 	defer db.Close()
-	
+
+	// loop 
 	for update := range updates {
 		go telegram.HandleUpdate(bot, update, &db)
 	}
